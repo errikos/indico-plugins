@@ -23,9 +23,10 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.urls import url_parse
 
 from indico.core.config import config
+from indico.modules.events.controllers.base import RHEventBase
 from indico.web.rh import RH
 
-from indico_ursh.util import request_short_url
+from indico_ursh.util import request_short_url, strip_end
 from indico_ursh.views import WPShortenURLPage
 
 
@@ -56,4 +57,18 @@ class RHDisplayShortenURLPage(RH):
     """Provide a simple page, where users can submit a URL to be shortened"""
 
     def _process(self):
-        return WPShortenURLPage.render_template('url_shortener.html')
+        return WPShortenURLPage.render_template('ursh_shortener_page.html')
+
+
+class RHDisplayCustomShortenURLPage(RHEventBase):
+    """Provide a simple page, where users can submit a URL to be shortened"""
+
+    def _process(self):
+        from indico_ursh.plugin import UrshPlugin
+        original_url = request.args.get('original_url')
+        if not original_url:
+            raise BadRequest('Incomplete request')
+        ursh_url = url_parse(UrshPlugin.settings.get('api_host'))
+        ursh_host = strip_end(ursh_url.to_url(), ursh_url.path[1:])
+        return WPShortenURLPage.render_template('ursh_custom_shortener_page.html', ursh_host=ursh_host,
+                                                original_url=posixpath.join(config.BASE_URL, original_url[1:]))

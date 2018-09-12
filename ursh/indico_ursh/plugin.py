@@ -19,6 +19,8 @@ from __future__ import unicode_literals
 from flask_pluginengine import render_plugin_template
 
 from indico.core.plugins import IndicoPlugin
+from indico.web.flask.templating import template_hook
+from indico.web.flask.util import url_for
 from indico.web.forms.base import IndicoForm
 from indico.web.views import WPBase
 
@@ -52,6 +54,8 @@ class UrshPlugin(IndicoPlugin):
     def init(self):
         super(UrshPlugin, self).init()
         self.template_hook('url-shortener-link', self._inject_ursh_button)
+        self.template_hook('url-shortener-dropdown', self._inject_ursh_dropdown)
+        self.template_hook('page-footer', self._inject_ursh_footer)
         self.inject_bundle('main.js', WPBase)
 
     def get_blueprints(self):
@@ -61,3 +65,12 @@ class UrshPlugin(IndicoPlugin):
         if self.settings.get('api_key') and self.settings.get('api_host'):
             return render_plugin_template('ursh_button.html', target=target,
                                           element_type=element_type, element_class=element_class, text=text)
+
+    def _inject_ursh_dropdown(self, target, element_class='', allow_create=False, **kwargs):
+        if self.settings.get('api_key') and self.settings.get('api_host'):
+            return render_plugin_template('ursh_dropdown.html', target=target,
+                                          element_class=element_class, allow_create=allow_create)
+
+    def _inject_ursh_footer(self, **kwargs):
+        url = url_for('plugin_ursh.shorten_url')
+        return render_plugin_template('ursh_footer.html')

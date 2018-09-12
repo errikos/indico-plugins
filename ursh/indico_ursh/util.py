@@ -37,3 +37,10 @@ def request_short_url(original_url):
 
     data = response.json()
     return data.get('short_url')
+
+
+def strip_end(text, suffix):
+    if not text.endswith(suffix):
+        return text
+    return text[:len(text)-len(suffix)]
+
