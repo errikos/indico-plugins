@@ -26,7 +26,7 @@ from indico.core.config import config
 from indico.modules.events.controllers.base import RHEventBase
 from indico.web.rh import RH
 
-from indico_ursh.util import request_short_url, strip_end
+from indico_ursh.util import register_shortcut, request_short_url, strip_end
 from indico_ursh.views import WPShortenURLPage
 
 
@@ -72,3 +72,13 @@ class RHDisplayCustomShortenURLPage(RHEventBase):
         ursh_host = strip_end(ursh_url.to_url(), ursh_url.path[1:])
         return WPShortenURLPage.render_template('ursh_custom_shortener_page.html', ursh_host=ursh_host,
                                                 original_url=posixpath.join(config.BASE_URL, original_url[1:]))
+
+
+class RHRegisterCustomShortcut(RHEventBase):
+    """Send the ursh request for registering a custom short URL for an event."""
+
+    def _process(self):
+        original_url = request.json.get('original_url')
+        shortcut = request.json.get('shortcut')
+        short_url = register_shortcut(original_url, shortcut)
+        return jsonify(url=short_url)

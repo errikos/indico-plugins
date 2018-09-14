@@ -16,6 +16,7 @@
                    data-title="{{ _('Create short URL') }}"
                    data-href="{{ url_for('plugin_ursh.shorten_event_url', event) }}"
                    data-params='{"original_url": "{{ target }}"}'
+                   data-endpoint="{{ url_for('plugin_ursh.do_shorten_event_url', event) }}"
                    data-ajax-dialog
                    data-hide-page-header>
                     {{ trans }}Create short URL{{ end_trans }}

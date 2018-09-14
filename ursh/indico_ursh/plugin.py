@@ -65,5 +65,4 @@ class UrshPlugin(IndicoPlugin):
                                           dropdown=dropdown, element_class=element_class, text=text, **kwargs)
 
     def _inject_ursh_footer(self, **kwargs):
-        url = url_for('plugin_ursh.shorten_url')
         return render_plugin_template('ursh_footer.html')

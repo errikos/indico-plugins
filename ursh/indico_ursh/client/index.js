@@ -37,14 +37,11 @@ function _showTip(element, msg) {
     });
 }
 
-async function _makeUrshRequest(originalURL) {
-    const urshEndpoint = '/ursh';
-
+async function _makeUrshRequest(data, endpoint = '/ursh') {
     let response;
     try {
-        response = await indicoAxios.post(urshEndpoint, {
-            original_url: originalURL,
-        });
+        console.log(data);
+        response = await indicoAxios.post(endpoint, data);
     } catch (error) {
         handleAxiosError(error);
         return;
@@ -105,7 +102,9 @@ async function _handleUrshPageInput(evt) {
     const input = $('#ursh-shorten-input');
     const originalURL = _getUrshInput(input);
     if (originalURL) {
-        const result = await _makeUrshRequest(originalURL);
+        const result = await _makeUrshRequest({
+            original_url: originalURL,
+        });
         if (result) {
             const outputElement = $('#ursh-shorten-output');
             $('#ursh-shorten-response-form').slideDown();
@@ -120,13 +119,56 @@ async function _handleUrshPageInput(evt) {
 
 async function _handleUrshClick(evt) {
     evt.preventDefault();
+
     const originalURL = evt.target.dataset.originalUrl;
-    const result = await _makeUrshRequest(originalURL);
-    $(evt.target).copyURLTooltip(result, 'unfocus');
+    const result = await _makeUrshRequest({
+        original_url: originalURL,
+    });
+
+    if (result) {
+        $(evt.target).copyURLTooltip(result, 'unfocus');
+    } else {
+        _showTip($(evt.target), $t.gettext('URL shortening service error'));
+    }
 }
 
 async function _handleUrshCreate(evt) {
-    console.log(evt);
+    window.locals = {};
+    window.locals.endpoint = evt.target.dataset.endpoint;
+}
+
+function _validateCustomShortcut(input, minSize = 5) {
+    const value = input.val();
+    if (value.length < minSize) {
+        input.focus();
+        _showTip(input, $t.gettext('Shortcut is too small'));
+        return false;
+    }
+    return true;
+}
+
+async function _handleUrshCustomShortcut(evt) {
+    evt.preventDefault();
+
+    const serverElement = $('#ursh-create-custom-server');
+    const shortcutElement = $('#ursh-create-custom-input');
+    const originalURLElement = $('#ursh-create-custom-target');
+
+    if (!_validateCustomShortcut(shortcutElement)) {
+        return;
+    }
+
+    const resultingURL = await _makeUrshRequest({
+        original_url: originalURLElement.val(),
+        shortcut: shortcutElement.val(),
+    }, window.locals.endpoint);
+
+    if (resultingURL) {
+        const result = `${serverElement.text()}${shortcutElement.val()}`;
+        $(evt.target).copyURLTooltip(result, 'unfocus');
+    } else {
+        _showTip($(evt.target), $t.gettext('This shortcut is already in use'));
+    }
 }
 
 $(document)
@@ -137,7 +179,13 @@ $(document)
         }
     })
     .on('click', '.ursh-get', _handleUrshClick)
-    .on('click', '.ursh-create', _handleUrshCreate);
+    .on('click', '.ursh-create', _handleUrshCreate)
+    .on('click', '#ursh-create-custom-button', _handleUrshCustomShortcut)
+    .on('keydown', '#ursh-create-custom-input', (evt) => {
+        if (evt.key === 'Enter') {
+            _handleUrshCustomShortcut(evt);
+        }
+    });
 
 $(document).ready(() => {
     // keep dropdown menu open when clicking on an entry

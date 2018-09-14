@@ -9,16 +9,22 @@
 {% block content -%}
     <p>{% trans %}Creating a custom shortcut for the following URL:{% endtrans %}</p>
     <div class="i-has-action">
-        <input type="url" style="font-family:monospace;" value="{{ original_url }}" disabled>
+        <input id="ursh-create-custom-target" type="url" style="font-family:monospace;" value="{{ original_url }}" disabled>
     </div>
-    <p>{% trans %}Please enter the desired shortcut below (at least 5 chars).{% endtrans %}</p>
+    <p>
+        {% trans -%}
+            Please enter the desired shortcut below (at least 5 chars) and click on the "Create" button.
+        {%- endtrans %}
+    </p>
     <div id="ursh-create-custom-request-form" class="i-has-action">
-        <button type="button" class="i-button" style="font-family:monospace;" disabled>{{ ursh_host }}</button>
-        <input id="ursh-custom-input" name="ursh-custom-shortcut" type="text" style="font-family:monospace;"
+        <button id="ursh-create-custom-server" type="button" class="i-button" style="font-family:monospace;" disabled>
+            {{- ursh_host -}}
+        </button>
+        <input id="ursh-create-custom-input" name="ursh-custom-shortcut" type="text" style="font-family:monospace;"
                spellcheck="false" autocomplete="off" autocapitalize="off"
                placeholder="{% trans %}Enter a shortcut{% endtrans %}...">
-        <button id="ursh-create-custom-button" type="button" class="i-button">{% trans %}Create and copy{% endtrans %}</button>
+        <button id="ursh-create-custom-button" type="button" class="i-button">
+            {% trans -%}Create{%- endtrans %}
+        </button>
     </div>
 {%- endblock %}
-
-

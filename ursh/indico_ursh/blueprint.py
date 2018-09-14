@@ -18,9 +18,13 @@ from __future__ import unicode_literals
 
 from indico.core.plugins import IndicoPluginBlueprint
 
-from indico_ursh.controllers import RHDisplayShortenURLPage, RHGetShortURL, RHDisplayCustomShortenURLPage
+from indico_ursh.controllers import (RHDisplayCustomShortenURLPage, RHDisplayShortenURLPage, RHGetShortURL,
+                                     RHRegisterCustomShortcut)
+
 
 blueprint = IndicoPluginBlueprint('ursh', 'indico_ursh')
 blueprint.add_url_rule('/ursh', 'get_short_url', RHGetShortURL, methods=('POST',))
-blueprint.add_url_rule('/url-shortener', 'shorten_url', RHDisplayShortenURLPage)
+blueprint.add_url_rule('/url-shortener', 'shorten_url_page', RHDisplayShortenURLPage)
 blueprint.add_url_rule('/event/<confId>/manage/short-url', 'shorten_event_url', RHDisplayCustomShortenURLPage)
+blueprint.add_url_rule('/event/<confId>/manage/short-url', 'do_shorten_event_url', RHRegisterCustomShortcut,
+                       methods=('POST', ))
